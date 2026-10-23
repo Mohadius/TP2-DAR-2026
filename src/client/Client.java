@@ -18,10 +18,15 @@ public class Client {
         PrintWriter out=new PrintWriter(socket.getOutputStream(),true);
         BufferedReader in=new BufferedReader(new InputStreamReader(socket.getInputStream()));
         while (true) {
-            System.out.println("Tapez une opération complète (Ex:55*25) ou 'quitter' ");
+            System.out.println("Tapez une opération complète (Ex:55 * 25) ou 'quitter' ");
             String op = scanner.nextLine();
             out.println(op);
             if (op.equalsIgnoreCase("quitter")) {break;}
+            if(!op.matches("^\\d+\\s+[+\\-*/]\\s+\\d+$")){
+                System.out.println("Syntaxe incorrecte ! Format attendu : [nombre] [espace] [opérateur] [espace] [nombre]");
+                continue;
+            }
+            out.println(op);
             String response = in.readLine();
             System.out.println("Résultat du serveur =" + response);
         }

@@ -30,7 +30,13 @@ public class Server {
             if(operateur.equals("+")) res=op1+op2;
             else if (operateur.equals("-")) res=op1-op2;
             else if (operateur.equals("*")) res=op1*op2;
-            else if (operateur.equals("/")) res=op1/op2;
+            else if (operateur.equals("/")) {
+                if (op2 == 0) {
+                    out.println("Erreur: Division par zero");
+                    continue;
+                }
+                res = op1 / op2;
+            }
             out.println(res);
         }
         clientSocket.close();
