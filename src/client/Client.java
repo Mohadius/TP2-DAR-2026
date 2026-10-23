@@ -1,13 +1,10 @@
 package client;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.io.PrintWriter;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.Scanner;
 import java.net.InetAddress;
+import model.Operation;
 public class Client {
     public static void main(String[] args) throws Exception {
         String serverIp="192.168.100.5";
@@ -15,22 +12,32 @@ public class Client {
         Socket socket = new Socket(InetAddress.getByName(serverIp), 12345);
         System.out.println("Je suis un client connecté");
         Scanner scanner = new Scanner(System.in);
-        PrintWriter out=new PrintWriter(socket.getOutputStream(),true);
-        BufferedReader in=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        ObjectOutputStream out= new ObjectOutputStream(socket.getOutputStream());
+        ObjectInputStream in= new ObjectInputStream(socket.getInputStream());
         while (true) {
             System.out.println("Tapez une opération complète (Ex:55 * 25) ou 'quitter' ");
             String op = scanner.nextLine();
-            out.println(op);
-            if (op.equalsIgnoreCase("quitter")) {break;}
+            if (op.equalsIgnoreCase("quitter")) {
+                out.writeObject(null);
+                out.flush();
+                break;
+            }
             if(!op.matches("^\\d+\\s+[+\\-*/]\\s+\\d+$")){
                 System.out.println("Syntaxe incorrecte ! Format attendu : [nombre] [espace] [opérateur] [espace] [nombre]");
                 continue;
             }
-            out.println(op);
-            String response = in.readLine();
+            String[] parties =op.split(" ");
+            int op1=Integer.parseInt(parties[0]);
+            String operateur=parties[1];
+            int op2=Integer.parseInt(parties[2]);
+            Operation operationObj=new Operation(op1,operateur,op2);
+            out.writeObject(operationObj);
+            out.flush();
+            Object response = in.readObject();
             System.out.println("Résultat du serveur =" + response);
         }
         socket.close();
         scanner.close();
+        System.out.println("Connexion fermé");
     }
 }
